@@ -3,6 +3,7 @@ package org.example.springbootdemo.controller;
 
 import org.example.springbootdemo.entity.Student;
 import org.example.springbootdemo.service.StudentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,11 +18,14 @@ public class StudentController {
         this.service = service;
     }
 
-    // ADD Student
+
+
     @PostMapping
-    public Student saveStudent(@RequestBody Student student) {
-        return service.saveStudent(student);
+    public ResponseEntity<Student> saveStudent(@RequestBody Student student) {
+        Student saved = service.saveStudent(student);
+        return ResponseEntity.status(201).body(saved); // 201 CREATED
     }
+
 
     // Bulk insert or update
     @PostMapping("/bulk")
