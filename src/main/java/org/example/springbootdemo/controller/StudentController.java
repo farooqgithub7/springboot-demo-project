@@ -2,7 +2,9 @@ package org.example.springbootdemo.controller;
 
 
 import org.example.springbootdemo.entity.Student;
+import org.example.springbootdemo.service.KafkaProducer;
 import org.example.springbootdemo.service.StudentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,14 @@ import java.util.List;
 @RequestMapping("/students")
 public class StudentController {
 
+
+    @Autowired
+    private StudentService studentService;
+
+    @Autowired
+    private KafkaProducer kafkaProducer;
+
+    @Autowired
     private final StudentService service;
 
     public StudentController(StudentService service) {
@@ -20,7 +30,14 @@ public class StudentController {
 
 
 
-    @PostMapping
+    @PostMapping("/create")
+    public Student createStudent(@RequestBody Student student) {
+        Student saved = studentService.saveStudent(student);
+        kafkaProducer.sendMessage("student-topic", "New student created: " + saved.getName());
+        return saved;
+    }
+
+    @PostMapping("/save")
     public ResponseEntity<Student> saveStudent(@RequestBody Student student) {
         Student saved = service.saveStudent(student);
         return ResponseEntity.status(201).body(saved); // 201 CREATED
